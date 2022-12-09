@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.io.IOException;
+
 @Controller
 public class HomeController {
 
@@ -19,7 +21,7 @@ public class HomeController {
         return "home";
     }
     @PostMapping("/getAnimeByName")
-    public String getAnimeByName(@ModelAttribute("name") String name, Model model){
+    public String getAnimeByName(@ModelAttribute("name") String name, Model model) throws IOException {
         name = name.replaceAll("[!$%^&*()_+.:-]"," ");
         StringBuilder title = new StringBuilder();
         for(String s : name.trim().split("[ ]{1,}")){

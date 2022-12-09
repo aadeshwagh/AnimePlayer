@@ -1,6 +1,8 @@
 package com.aadesh.AnimePlayer.service;
 
+import ch.qos.logback.core.util.FileUtil;
 import com.aadesh.AnimePlayer.entity.Anime;
+import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -9,25 +11,47 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+
 @Service
 public class AnimeService {
 
-    public Anime getAnime(String url) {
+    public Anime getAnime(String url)  {
 
             Anime anime = new Anime();
-            String resourceName = "chromedriver.exe";
+            String resourceName = "drivers/chromedriver.exe";
 
             ClassLoader classLoader = getClass().getClassLoader();
-            String path = Objects.requireNonNull(classLoader.getResource(resourceName)).getPath();
+//          String path1 = Objects.requireNonNull(classLoader.getResource(resourceName)).getPath();
+//
+
+            URL furl = classLoader.getResource(resourceName);
+            FileOutputStream output = null;
+            try {
+                output = new FileOutputStream("chromedriver.exe");
+                InputStream input = furl.openStream();
+                byte [] buffer = new byte[4096];
+                int bytesRead = input.read(buffer);
+                while (bytesRead != -1) {
+                    output.write(buffer, 0, bytesRead);
+                    bytesRead = input.read(buffer);
+                }
+                output.close();
+                input.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
 
             //Todo:: Implement Error handling
-            System.setProperty("webdriver.chrome.driver", path);
+            System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
 
             WebDriver driver = new ChromeDriver(getChromeOptions());
             driver.get(url);
