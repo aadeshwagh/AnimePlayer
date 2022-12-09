@@ -1,0 +1,13 @@
+app should be able to play anime by name
+app shold have next eposide button
+should have feature that allows to jump to certain eposide
+should have hot key features fro play/pause , next eposide, go to main page and full screen
+
+
+whats the plan
+
+use jsoup to pares the html from animex play
+
+get video player link
+
+use spring boot
