@@ -1,8 +1,33 @@
 package com.aadesh.AnimePlayer.entity;
 
+import java.util.ArrayList;
+
 public class Anime {
     private String title;
     private String url;
+
+    private ArrayList<String> fillers;
+    private String playerUrl;
+
+    private int totalEpisodes;
+
+    private int episode;
+
+    public int getEpisode() {
+        return episode;
+    }
+
+    public void setEpisode(int episode) {
+        this.episode = episode;
+    }
+
+    public ArrayList<String> getFillers() {
+        return fillers;
+    }
+
+    public void setFillers(ArrayList<String> fillers) {
+        this.fillers = fillers;
+    }
 
     public String getUrl() {
         return url;
@@ -11,20 +36,6 @@ public class Anime {
     public void setUrl(String url) {
         this.url = url;
     }
-
-    private String playerUrl;
-
-    public int getEpisodeNumber() {
-        return episodeNumber;
-    }
-
-    public void setEpisodeNumber(int episodeNumber) {
-        this.episodeNumber = episodeNumber;
-    }
-
-    private int totalEpisodes;
-
-    private int episodeNumber;
 
     public String getTitle() {
         return title;
@@ -52,6 +63,6 @@ public class Anime {
 
     @Override
     public String toString() {
-        return "Title :"+title+"\n"+"Url "+ playerUrl +"\n"+"Eposide: "+episodeNumber+"\n"+"Total Episodes: "+totalEpisodes;
+        return "Title :"+title+"\n"+"Url "+ playerUrl +"\n"+"Total Episodes: "+totalEpisodes;
     }
 }

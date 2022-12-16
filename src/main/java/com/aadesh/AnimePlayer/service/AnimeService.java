@@ -1,110 +1,144 @@
 package com.aadesh.AnimePlayer.service;
-
-import ch.qos.logback.core.util.FileUtil;
 import com.aadesh.AnimePlayer.entity.Anime;
-import org.apache.commons.io.FileUtils;
+import com.aadesh.AnimePlayer.entity.Details;
+import com.beust.ah.A;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
-
 import java.io.*;
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class AnimeService {
 
-    public Anime getAnime(String url)  {
-
-            Anime anime = new Anime();
-            String resourceName = "drivers/chromedriver.exe";
-
-            ClassLoader classLoader = getClass().getClassLoader();
-//          String path1 = Objects.requireNonNull(classLoader.getResource(resourceName)).getPath();
-//
-
-            URL furl = classLoader.getResource(resourceName);
-            FileOutputStream output = null;
-            try {
-                output = new FileOutputStream("chromedriver.exe");
-                InputStream input = furl.openStream();
-                byte [] buffer = new byte[4096];
-                int bytesRead = input.read(buffer);
-                while (bytesRead != -1) {
-                    output.write(buffer, 0, bytesRead);
-                    bytesRead = input.read(buffer);
-                }
-                output.close();
-                input.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-
+    private final String animeBaseUrl = "https://ww3.gogoanime2.org";
+    private final String fillerBaseUrl = "https://www.animefillerguide.com/search?q=";
+    public Anime getAnime(String url , String name)  {
+        try {
             //Todo:: Implement Error handling
-            System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
+            int episode = Integer.parseInt(url.substring(url.lastIndexOf("/") + 1));
+            CompletableFuture<Details> future1 = CompletableFuture.supplyAsync(() -> getDetails(url));
+            CompletableFuture<ArrayList<String>> future2 = CompletableFuture.supplyAsync(() -> getFillerList(name));
 
-            WebDriver driver = new ChromeDriver(getChromeOptions());
-            driver.get(url);
+            CompletableFuture<Anime> combined = future1.thenCombine(future2, (details, fillers) ->{
+                Anime anime = new Anime();
+                anime.setEpisode(episode);
+                anime.setUrl(url);
+                anime.setTitle(name.substring(0, 1).toUpperCase() + name.substring(1).replace("-"," "));
+                anime.setPlayerUrl(details.getPlayUrl());
+                anime.setTotalEpisodes(details.getTotalEpisodes());
+                anime.setFillers(fillers);
 
-            String pageSource = driver.getPageSource();
+                return anime;
+            });
 
-            Document document = Jsoup.parse(pageSource);
+            return combined.get();
+        }catch (Exception e){
+            throw new RuntimeException();
+        }
+    }
+
+    public Details getDetails(String url){
+        Details details = new Details();
+        try {
+            Document document = Jsoup.connect(url).get();
+
             Element element = document.getElementById("playerframe");
+            assert element != null;
             String src = element.attr("src");
             String playerUrl = "https://"+src.replace("//","");
             if(src.contains("embed")){
-                playerUrl = "https://ww3.gogoanime2.org"+src;
+                playerUrl = animeBaseUrl+src;
             }
-
-            AtomicInteger totalEpisodes = new AtomicInteger();
-            AtomicReference<String> episodeNumber = new AtomicReference<>("-1");
             Element episodeList = document.getElementById("episode_related");
-            episodeList.select("li").forEach(element1 -> {
-                totalEpisodes.getAndIncrement();
-            });
-
-            String title = document.getElementsByClass("title_name").text();
-            for(String s :title.split(" ")){
-               if(s.matches("-?\\d+")){
-                   episodeNumber = new AtomicReference<>(s);
-               }
-            }
-            anime.setUrl(url);
-            anime.setTitle(title.replace("for free on gogoanime",""));
-            anime.setPlayerUrl(playerUrl);
-            anime.setTotalEpisodes(totalEpisodes.get());
-            anime.setEpisodeNumber(Integer.parseInt(episodeNumber.get()));
-            driver.quit();
-
-            return anime;
+            assert episodeList != null;
+            int totalEpisodes = episodeList.select("li").size();
+            details.setPlayUrl(playerUrl);
+            details.setTotalEpisodes(totalEpisodes);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return details;
     }
-    private ChromeOptions getChromeOptions(){
-        ChromeOptions chromeOptions = new ChromeOptions();
-        chromeOptions.addArguments("disable-infobars");
-        chromeOptions.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
-        chromeOptions.setExperimentalOption("useAutomationExtension", false);
 
-        chromeOptions.addArguments("--disable-gpu");
-        chromeOptions.addArguments("--disable-extensions");
-        chromeOptions.addArguments("--no-sandbox");
-        chromeOptions.addArguments("--disable-dev-shm-usage");
-        chromeOptions.addArguments("--headless");
-        chromeOptions.addArguments("--window-size=1580,1280");
+    public String getModifiedUrl(String url, int shift){
+        int episode = Integer.parseInt(url.substring(url.lastIndexOf("/") + 1));
+        episode += shift;
+        return url.substring(0, url.lastIndexOf("/") + 1) + episode;
 
-        final HashMap<String, Object> prefs = new HashMap<>();
-        prefs.put("credentials_enable_service", false);
-        prefs.put("profile.password_manager_enabled", false);
-        chromeOptions.setExperimentalOption("prefs", prefs);
-        return chromeOptions;
+    }
+    public Anime getEpisode(Anime anime , String newUrl){
+        try {
+            Document document = Jsoup.connect(newUrl).get();
+            Element element = document.getElementById("playerframe");
+            assert element != null;
+            String src = element.attr("src");
+            String playerUrl = "https://"+src.replace("//","");
+            if(src.contains("embed")){
+                playerUrl = animeBaseUrl+src;
+            }
+            int episode = Integer.parseInt(newUrl.substring(newUrl.lastIndexOf("/") + 1));
+
+            anime.setEpisode(episode);
+            anime.setUrl(newUrl);
+            anime.setPlayerUrl(playerUrl);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        // Get the source code of the page as a string
+
+        return anime;
+    }
+    public ArrayList<String> getFillerList(String title){
+        String name = preprocessName(title);
+       name =  name.replace("-","");
+        if(name.contains("dub")){
+            name = name.replace("dub","");
+        }
+        ArrayList<String> fillerList = new ArrayList<>();
+        try {
+            Document document = Jsoup.connect(fillerBaseUrl+name).get();
+            String jumpUrl = document.getElementsByClass("jump-link").get(0).select("a").attr("href");
+            Document document1 = Jsoup.connect(jumpUrl).get();
+            ArrayList<Integer> fillers = new ArrayList<>(document1.getElementsByClass("red").select("span").stream().filter(e-> e.text().matches("[0-9].*")).map(e-> {
+               Matcher matcher = Pattern.compile("\\d+\\b").matcher(e.text());
+                if (matcher.find()) {
+                    return Integer.parseInt(matcher.group());
+                }
+               return -1;
+            }).toList());
+            fillerList.add("Fillers ");
+            fillers = new ArrayList<>(fillers.stream().filter(n->n!=-1).toList());
+            int first = fillers.get(0);
+            for(int i=0 ;i<fillers.size()-1;i++){
+                if(fillers.get(i+1)-fillers.get(i)!=1){
+                    fillerList.add(first+"-"+fillers.get(i));
+                    first = fillers.get(i+1);
+                }
+            }
+            fillerList.add(""+fillers.get(fillers.size()-1));
+
+
+        } catch (Exception e) {
+             fillerList.add("No Fillers Found");
+        }
+        return fillerList;
+
+    }
+
+    public String preprocessName(String name){
+        name = name.replaceAll("[!$%^&*()_+.:-]"," ");
+        StringBuilder title = new StringBuilder();
+        for(String s : name.trim().split("[ ]{1,}")){
+            title.append(s.toLowerCase()).append("-");
+        }
+        return title.toString();
     }
 }
