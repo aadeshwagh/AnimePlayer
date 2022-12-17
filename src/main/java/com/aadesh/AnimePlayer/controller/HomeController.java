@@ -24,12 +24,12 @@ public class HomeController {
     public String home(){
         return "home";
     }
-    @PostMapping("/getAnimeByName")
-    public String getAnimeByName(@ModelAttribute("name") String name, Model model) throws IOException {
-        String title = animeService.preprocessName(name);
-        String searchName = title.substring(0,title.length()-1).trim();
-        String url = "https://ww3.gogoanime2.org/watch/"+searchName+"/1";
-
-        return animeController.getAnime(url,name,model);
-    }
+//    @PostMapping("/getAnimeByName")
+//    public String getAnimeByName(@ModelAttribute("name") String name, Model model) throws IOException {
+//        String title = animeService.preprocessName(name);
+//        String searchName = title.substring(0,title.length()-1).trim();
+//        String url = "https://ww3.gogoanime2.org/watch/"+searchName+"/1";
+//
+//        return animeController.getAnime(url,name,model);
+//    }
 }

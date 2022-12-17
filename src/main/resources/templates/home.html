@@ -10,7 +10,7 @@
 <body>
 <h1 class="d-flex justify-content-center" >Anime Player</h1>
 <div class="d-flex justify-content-center" style="margin: 50px">
-    <form  method="POST" th:action = "@{/getAnimeByName}" style="width:80%;">
+    <form  method="POST" th:action = "@{/getSearchResults}" style="width:80%;">
         <div class="input-group mb-3">
             <input type="text" name="name" class="form-control" placeholder="Anime Title" aria-label="Anime Title" aria-describedby="button-addon2">
             <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Search</button>

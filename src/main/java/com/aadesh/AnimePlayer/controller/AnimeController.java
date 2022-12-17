@@ -13,14 +13,11 @@ import org.springframework.web.bind.annotation.*;
 public class AnimeController {
     @Autowired
     private AnimeService animeService;
-
-    private Anime anime;
-
     @GetMapping("/getAnime")
-    public String getAnime(@RequestParam("url") String url, String name ,Model model){
+    public String getAnime(@RequestParam("url") String url, @RequestParam("name") String name  ,Model model){
         //Todo:: add exception handling here
         long startTime = System.nanoTime();
-        anime = animeService.getAnime(url,name);
+        Anime anime = animeService.getAnime(url,name);
 
 
         // Print the elapsed time
@@ -35,7 +32,7 @@ public class AnimeController {
     }
 
     @PostMapping("/getEpisode")
-    public String getEpisode(@RequestBody MultiValueMap<String,String> formData,Model model){
+    public String getEpisode(@RequestBody MultiValueMap<String,String> formData,Model model , @ModelAttribute Anime anime){
         long startTime = System.nanoTime();
         //Todo:: add exception handling here
         int episodeNo = Integer.parseInt(formData.getFirst("episodeNo"));
@@ -51,8 +48,8 @@ public class AnimeController {
         System.out.println("Elapsed time in Get Episode: " + elapsedTime/1000000 + " ms");
         return "anime";
     }
-    @GetMapping ("/getNextEpisode")
-    public String getNextEpisode(Model model){
+    @PostMapping ("/getNextEpisode")
+    public String getNextEpisode(Model model ,@ModelAttribute Anime anime){
         long startTime = System.nanoTime();
         Anime modifiedAnime = animeService.getEpisode(anime,animeService.getModifiedUrl(anime.getUrl(),1));
         model.addAttribute("anime" , modifiedAnime);
@@ -63,8 +60,8 @@ public class AnimeController {
         return "anime";
     }
 
-    @GetMapping("/getPreviousEpisode")
-    public String getPreviousEpisode(Model model){
+    @PostMapping ("/getPreviousEpisode")
+    public String getPreviousEpisode(Model model,@ModelAttribute Anime anime){
         long startTime = System.nanoTime();
         Anime modifiedAnime = animeService.getEpisode(anime,animeService.getModifiedUrl(anime.getUrl(),-1));
         model.addAttribute("anime",modifiedAnime);

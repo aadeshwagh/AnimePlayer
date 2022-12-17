@@ -31,7 +31,7 @@ public class AnimeService {
                 Anime anime = new Anime();
                 anime.setEpisode(episode);
                 anime.setUrl(url);
-                anime.setTitle(name.substring(0, 1).toUpperCase() + name.substring(1).replace("-"," "));
+                anime.setTitle(name);
                 anime.setPlayerUrl(details.getPlayUrl());
                 anime.setTotalEpisodes(details.getTotalEpisodes());
                 anime.setFillers(fillers);
@@ -139,6 +139,7 @@ public class AnimeService {
         for(String s : name.trim().split("[ ]{1,}")){
             title.append(s.toLowerCase()).append("-");
         }
-        return title.toString();
+        String res = title.toString().substring(0,title.length()-1);
+        return res;
     }
 }
