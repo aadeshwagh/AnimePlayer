@@ -29,11 +29,11 @@ public class SearchService {
             elements.forEach(element -> {
                     Result result = new Result();
                    result.setImgUrl(baseUrl+element.select("img").attr("src"));
-                   String url = baseUrl+element.select("a").first().attr("href");
+                   String url = element.select("a").first().attr("href");
                    if(url.contains("watch")){
-                       result.setAnimeUrl(url);
+                       result.setAnimeUrl(baseUrl+url);
                    }else{
-                       result.setAnimeUrl(url .replace("anime","watch")+"/1");
+                       result.setAnimeUrl(baseUrl+url .replace("anime","watch")+"/1");
                    }
                    result.setTitle(element.select("a").first().attr("title"));
                    result.setReleasedDate(element.select("p").get(1).text().replace("Released:","").replace("Episode","").trim());

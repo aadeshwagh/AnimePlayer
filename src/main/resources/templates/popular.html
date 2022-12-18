@@ -14,7 +14,7 @@
     <section class="content">
         <div class="row">
             <div class="col-sm-2" th:each="result: ${results}">
-                <div class="card" style="margin: 30px">
+                <div class="card" style="margin: 30px;min-height: 355px;">
                     <a th:href="@{'/getAnime?url='+${result.animeUrl}+'&name='+${result.title}}">
                         <img th:src="${result.imgUrl}" class="card-img-top" th:alt="${result.title}">
                     </a>
