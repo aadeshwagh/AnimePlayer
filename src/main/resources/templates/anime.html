@@ -3,7 +3,8 @@
 <head>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 </head>
-<body class="d-flex justify-content-center" >
+<body>
+<div th:insert = "components/nav-bar  :: nav-bar"  ></div>
 <div class="d-flex flex-column align-items-center">
     <h5 th:text="@{'Watch '+${anime.title} + ' Episode '+${anime.episode}}" style="margin: 10px;"></h5>
 
@@ -28,8 +29,6 @@
     </div>
 
     <div class="d-flex justify-content-center">
-        <a th:href="@{/}" class="btn btn-primary mr-3">Back</a>
-
         <form th:action="@{/getPreviousEpisode}" th:object="${anime}" method="post">
             <input type="hidden" th:field="*{fillers}" th:value="${anime.fillers}">
             <input type="hidden" th:field="*{url}" th:value="${anime.url}">

@@ -98,16 +98,19 @@ public class AnimeService {
     }
     public ArrayList<String> getFillerList(String title){
         String name = preprocessName(title);
-       name =  name.replace("-","");
+        name =  name.replace("-","+");
         if(name.contains("dub")){
             name = name.replace("dub","");
+        } else if (name.contains("tv")) {
+            name = name.replace("tv","");
         }
+
         ArrayList<String> fillerList = new ArrayList<>();
         try {
             Document document = Jsoup.connect(fillerBaseUrl+name).get();
             String jumpUrl = document.getElementsByClass("jump-link").get(0).select("a").attr("href");
             Document document1 = Jsoup.connect(jumpUrl).get();
-            ArrayList<Integer> fillers = new ArrayList<>(document1.getElementsByClass("red").select("span").stream().filter(e-> e.text().matches("[0-9].*")).map(e-> {
+            ArrayList<Integer> fillers = new ArrayList<>(document1.select("li:has(s):not(:has(span.blue.small)):not(:has(span.purple.small))").select("span").stream().filter(e-> e.text().matches("[0-9].*")).map(e-> {
                Matcher matcher = Pattern.compile("\\d+\\b").matcher(e.text());
                 if (matcher.find()) {
                     return Integer.parseInt(matcher.group());

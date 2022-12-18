@@ -8,43 +8,8 @@
     <title>Search Results</title>
 </head>
 <body>
-<!--<div class = "container" >-->
-<!--    <div class = "card-group">-->
-<!--        <section class = "content">-->
-<!--            <div class="card" style="flex: 0 0 10%; margin: 30px" th:each = "result: ${results}" >-->
-<!--                <a th:href="@{'/getAnime?url='+${result.animeUrl}}" >-->
-<!--                    <img th:src="${result.imgUrl}" class="card-img-top" th:alt="${result.title}">-->
-<!--                </a>-->
-<!--                <div class="card-body">-->
-<!--                    <a th:href="@{'/getAnime?url='+${result.animeUrl}+'&name='+${result.title}}" >-->
-<!--                        <h5 class="card-title" th:text = "${result.title}">Card title</h5>-->
-<!--                    </a>-->
-<!--                    <p class="card-title" th:text = "${result.releasedDate}">Card title</p>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </section>-->
-<!--    </div>-->
-<!--</div>-->
-
-<!--<div class="container">-->
-<!--    <div class="row">-->
-<!--        <section class="content">-->
-<!--            <div class="col-sm-2" th:each="result: ${results}">-->
-<!--                <div class="card" style="margin: 30px">-->
-<!--                    <a th:href="@{'/getAnime?url='+${result.animeUrl}+'&name='+${result.title}}">-->
-<!--                        <img th:src="${result.imgUrl}" class="card-img-top" th:alt="${result.title}">-->
-<!--                    </a>-->
-<!--                    <div class="card-body">-->
-<!--                        <a th:href="@{'/getAnime?url='+${result.animeUrl}+'&name='+${result.title}}">-->
-<!--                            <h5 class="card-title" th:text="${result.title}">Card title</h5>-->
-<!--                        </a>-->
-<!--                        <p class="card-title" th:text="@{'Released: '+${result.releasedDate}}">Card title</p>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </section>-->
-<!--    </div>-->
-<!--</div>-->
+<div th:insert = "components/nav-bar  :: nav-bar"  ></div>
+<h3 class="d-flex justify-content-center">Search Results</h3>
 <div class="container" >
     <section class="content">
         <div class="row">

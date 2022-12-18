@@ -16,26 +16,27 @@ import java.util.ArrayList;
 public class SearchService {
     @Autowired
     private AnimeService animeService;
-
     private final String baseUrl= "https://ww3.gogoanime2.org";
 
 
-    public ArrayList<Result> getResults(String name){
-        String title =animeService.preprocessName(name);
 
+
+    public ArrayList<Result> getResults(String keyWord){
         ArrayList<Result> results = new ArrayList<>();
-
-        String url = baseUrl+"/search/"+title;
-
         try {
-            Document document = Jsoup.connect(url).get();
+            Document document = Jsoup.connect(baseUrl+keyWord).get();
             Elements elements = document.getElementsByClass("items").select("li");
             elements.forEach(element -> {
                     Result result = new Result();
                    result.setImgUrl(baseUrl+element.select("img").attr("src"));
-                   result.setAnimeUrl(baseUrl+element.select("a").first().attr("href").replace("anime","watch")+"/1");
+                   String url = baseUrl+element.select("a").first().attr("href");
+                   if(url.contains("watch")){
+                       result.setAnimeUrl(url);
+                   }else{
+                       result.setAnimeUrl(url .replace("anime","watch")+"/1");
+                   }
                    result.setTitle(element.select("a").first().attr("title"));
-                   result.setReleasedDate(element.select("p").get(1).text().replace("Released:","").trim());
+                   result.setReleasedDate(element.select("p").get(1).text().replace("Released:","").replace("Episode","").trim());
 
                    results.add(result);
 

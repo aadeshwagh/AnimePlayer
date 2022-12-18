@@ -7,10 +7,7 @@ import com.aadesh.AnimePlayer.service.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 
@@ -20,12 +17,20 @@ public class SearchController {
     @Autowired
     private SearchService searchService;
 
+    @Autowired
+    private  AnimeService animeService;
+
+
+
     @PostMapping("/getSearchResults")
     public String getSearchResults(@ModelAttribute("name") String name, Model model){
 
-        long startTime = System.nanoTime();
+        String title =animeService.preprocessName(name);
 
-        ArrayList<Result> results = searchService.getResults(name);
+        long startTime = System.nanoTime();
+        String keyWord = "/search/"+title;
+
+        ArrayList<Result> results = searchService.getResults(keyWord);
         model.addAttribute("results",results);
 
         long endTime = System.nanoTime();
@@ -38,5 +43,22 @@ public class SearchController {
 
         return "search-results";
 
+    }
+    @GetMapping("/getNewRelease")
+    public String getNewRelease(Model model){
+        String keyWord = "/home";
+        ArrayList<Result> results = searchService.getResults(keyWord);
+        model.addAttribute("results",results);
+
+        return "new";
+    }
+    @GetMapping("/getPopular/{pageNo}")
+    public String getPopular(@PathVariable String pageNo, Model model){
+        String keyWord = "/popular/"+pageNo;
+        ArrayList<Result> results = searchService.getResults(keyWord);
+        model.addAttribute("results",results);
+
+
+        return "popular";
     }
 }
